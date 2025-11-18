@@ -1,45 +1,55 @@
-@extends('layouts.app')
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Booking Settings') }}
+        </h2>
+    </x-slot>
 
-@section('content')
-<div class="card">
-    <div class="card-header">
-        <h3>إعدادات الحجز</h3>
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 bg-white border-b border-gray-200">
+                    
+                    @if (session('success'))
+                        <div class="mb-4 font-medium text-sm text-green-600">
+                            {{ session('success') }}
+                        </div>
+                    @endif
+
+                    <form action="{{ route('doctor.settings.store') }}" method="POST">
+                        @csrf
+
+                        <!-- Work Start Time -->
+                        <div>
+                            <label for="work_start_time" class="block font-medium text-sm text-gray-700">{{ __('Work Start Time') }}</label>
+                            <input type="time" id="work_start_time" name="work_start_time" value="{{ old('work_start_time', $settings->work_start_time ?? '') }}" class="block mt-1 w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" required>
+                        </div>
+
+                        <!-- Work End Time -->
+                        <div class="mt-4">
+                            <label for="work_end_time" class="block font-medium text-sm text-gray-700">{{ __('Work End Time') }}</label>
+                            <input type="time" id="work_end_time" name="work_end_time" value="{{ old('work_end_time', $settings->work_end_time ?? '') }}" class="block mt-1 w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" required>
+                        </div>
+
+                        <!-- Booking Status -->
+                        <div class="mt-4">
+                            <label for="is_booking_enabled" class="block font-medium text-sm text-gray-700">{{ __('Booking Status') }}</label>
+                            <select name="is_booking_enabled" id="is_booking_enabled" class="block mt-1 w-full rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                <option value="1" {{ old('is_booking_enabled', $settings->is_booking_enabled ?? '') == 1 ? 'selected' : '' }}>Enabled</option>
+                                <option value="0" {{ old('is_booking_enabled', $settings->is_booking_enabled ?? '') == 0 ? 'selected' : '' }}>Disabled</option>
+                            </select>
+                        </div>
+
+                        <!-- Save Button -->
+                        <div class="flex items-center justify-end mt-4">
+                            <button type="submit" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:ring ring-gray-300 disabled:opacity-25 transition ease-in-out duration-150">
+                                {{ __('Save Settings') }}
+                            </button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="card-body">
-
-        {{-- لعرض رسالة النجاح --}}
-        @if (session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
-            </div>
-        @endif
-
-        {{-- تحديث النموذج --}}
-        <form action="{{ route('doctor.settings.store') }}" method="POST">
-            @csrf
-
-            {{-- باقي حقول النموذج ... --}}
-            <div class="mb-3">
-                <label for="work_start_time" class="form-label">وقت بدء استقبال الحجوزات</label>
-                <input type="time" class="form-control" id="work_start_time" name="work_start_time">
-            </div>
-
-            <div class="mb-3">
-                <label for="work_end_time" class="form-label">وقت انتهاء استقبال الحجوزات</label>
-                <input type="time" class="form-control" id="work_end_time" name="work_end_time">
-            </div>
-
-            <div class="mb-3">
-                <label for="is_booking_enabled" class="form-label">حالة الحجز اليومي</label>
-                <select class="form-select" id="is_booking_enabled" name="is_booking_enabled">
-                    <option value="1">مفتوح</option>
-                    <option value="0">مغلق</option>
-                </select>
-            </div>
-
-            <button type="submit" class="btn btn-primary">حفظ الإعدادات</button>
-        </form>
-
-    </div>
-</div>
-@endsection
+</x-app-layout>

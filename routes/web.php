@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Doctor\DashboardController;
 use App\Http\Controllers\Doctor\BookingSettingsController;
+use App\Http\Controllers\PublicBookingController; // <-- تم التصحيح هنا
 
 /*
 |--------------------------------------------------------------------------
@@ -15,20 +16,20 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// -- مجموعة مسارات الأطباء المحمية --
-// لا يمكن لأحد الوصول إلى هذه المسارات إلا بعد تسجيل الدخول
-Route::middleware(['auth'])->group(function () {
-    
-    // هذا هو المسار الذي يحل كل المشاكل.
-    // نعطي القائمة العلوية المسار الذي تبحث عنه `dashboard`
-    // ونجعله يشير إلى المتحكم الصحيح الخاص بنا.
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+// المسار الرئيسي للوحة التحكم
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth'])->name('dashboard');
 
-    // مسار الإعدادات
+// -- مجموعة مسارات الطبيب الإضافية --
+Route::middleware(['auth'])->group(function () {
     Route::get('/doctor/settings', [BookingSettingsController::class, 'show'])->name('doctor.settings.show');
     Route::post('/doctor/settings', [BookingSettingsController::class, 'store'])->name('doctor.settings.store');
-
 });
+
+// -- المسار العام للحجز --
+// -- المسارات العامة للحجز --
+Route::get('/booking/{doctor}', [PublicBookingController::class, 'show'])->name('public.booking');
+Route::post('/booking/{doctor}', [PublicBookingController::class, 'store'])->name('public.booking.store'); // <-- أضف هذا السطر
 
 // هذا الملف يحتوي على كل مسارات التسجيل والدخول والخروج
 require __DIR__.'/auth.php';

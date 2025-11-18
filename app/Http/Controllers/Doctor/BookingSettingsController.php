@@ -1,39 +1,45 @@
 <?php
 
-namespace App\Http\Controllers\Doctor;
+namespace App\Http\Controllers\Doctor; // <-- تم التصحيح
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\Controller; // <-- تم التصحيح
 use Illuminate\Http\Request;
-use App\Models\BookingSetting; // <-- استيراد نموذج قاعدة البيانات
+use Illuminate\Support\Facades\Auth;
+use App\Models\BookingSetting; // <-- تم التصحيح
 
 class BookingSettingsController extends Controller
 {
+    /**
+     * عرض صفحة الإعدادات مع البيانات الحالية.
+     */
     public function show()
     {
-        return view('doctor.settings');
+        // ابحث عن إعدادات الطبيب المسجل حاليًا
+        // إذا لم يجد إعدادات، سيعيد null، وهذا مقبول
+        $settings = BookingSetting::where('user_id', Auth::id())->first();
+
+        // قم بإرسال هذه الإعدادات (أو null) إلى الواجهة
+        return view('doctor.settings', compact('settings'));
     }
 
-    // الدالة الجديدة لحفظ البيانات
+    /**
+     * حفظ الإعدادات.
+     */
     public function store(Request $request)
     {
-        // 1. التحقق من صحة البيانات المدخلة
         $validatedData = $request->validate([
             'work_start_time' => 'required',
             'work_end_time' => 'required',
             'is_booking_enabled' => 'required|boolean',
         ]);
 
-        // 2. حفظ البيانات في قاعدة البيانات
-        // ملاحظة: بما أننا لم ننشئ نظام تسجيل دخول بعد،
-        // سنفترض مؤقتاً أننا نعدّل إعدادات الطبيب رقم 1
-        $userId = 1; // <<-- هذا الرقم مؤقت
+        $userId = Auth::id();
 
         BookingSetting::updateOrCreate(
-            ['user_id' => $userId], // ابحث عن إعدادات لهذا الطبيب
-            $validatedData           // وقم بتحديثها بهذه البيانات الجديدة
+            ['user_id' => $userId],
+            $validatedData
         );
 
-        // 3. إعادة المستخدم إلى نفس الصفحة مع رسالة نجاح
-        return redirect()->back()->with('success', 'تم حفظ الإعدادات بنجاح!');
+        return redirect()->back()->with('success', 'Settings saved successfully!');
     }
 }
